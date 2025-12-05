@@ -12,9 +12,11 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    // YOUR PAYHERO CREDENTIALS - ALREADY CONFIGURED
+    // YOUR PAYHERO CREDENTIALS - CONFIGURED
     const BASIC_AUTH = "Basic bGpuSDZqME1LRDRCa3FjUEFLN206ajVva2J6ZVFXdGppWkVYV2NpWWdERXZIbHBIMHRqd3pXb21BTm93ag==";
-    const ACCOUNT_ID = "3844";
+    
+    // YOUR TILL CHANNEL ID - Till Number: 6253624
+    const TILL_CHANNEL_ID = "4519";
 
     const { phone, amount } = req.body;
 
@@ -37,7 +39,7 @@ export default async function handler(req, res) {
     }
 
     try {
-        // Send STK Push to PayHero
+        // Send STK Push to Till 6253624 via PayHero
         const response = await fetch('https://backend.payhero.co.ke/api/v2/payments', {
             method: 'POST',
             headers: {
@@ -47,10 +49,10 @@ export default async function handler(req, res) {
             body: JSON.stringify({
                 amount: parseInt(amount),
                 phone_number: normalizedPhone,
-                channel_id: ACCOUNT_ID,
+                channel_id: TILL_CHANNEL_ID,
                 provider: 'mpesa',
-                external_reference: `NYOTA-LOAN-${Date.now()}`,
-                callback_url: 'https://webhook.site/unique-url' // Optional: replace with your webhook
+                external_reference: `NYOTA-TILL6253624-${Date.now()}`,
+                callback_url: 'https://webhook.site/unique-url' // Optional: for payment notifications
             })
         });
 
@@ -61,7 +63,8 @@ export default async function handler(req, res) {
         if (response.ok && result.success !== false) {
             return res.status(200).json({ 
                 success: true,
-                message: 'STK Push sent successfully'
+                message: 'STK Push sent successfully to Till 6253624',
+                reference: result.data?.id || result.data?.transaction_id
             });
         } else {
             return res.status(400).json({ 
