@@ -1,288 +1,178 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Apply for Loan | NYOTA</title>
     
-    <!-- Favicons -->
-    <link rel="apple-touch-icon" sizes="192x192" href="icons/icon.192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon.512.png">
-    
-    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- SweetAlert -->
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.min.css" rel="stylesheet">
     
     <style>
         :root {
             --primary: #4361ee;
-            --primary-light: #4895ef;
             --secondary: #3f37c9;
-            --white: #ffffff;
-            --black: #1a1a1a;
-            --gray: #6c757d;
-            --light-gray: #f8f9fa;
             --gradient: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            --border-radius: 16px;
         }
-
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Poppins', sans-serif;
-            -webkit-tap-highlight-color: transparent;
         }
-
         body {
             min-height: 100vh;
-            background-color: var(--light-gray);
-            color: var(--black);
-            padding: 16px;
-            line-height: 1.5;
+            background-color: #f8f9fa;
+            padding: 20px;
         }
-
         .container {
             max-width: 500px;
             margin: 0 auto;
         }
-
-        .welcome-card {
-            background: var(--white);
-            border-radius: var(--border-radius);
-            padding: 20px;
-            margin-bottom: 16px;
-            box-shadow: 0 4px 20px rgba(67, 97, 238, 0.1);
-            border: 1px solid rgba(67, 97, 238, 0.1);
-        }
-
-        .welcome-text {
-            font-size: 0.95rem;
-            line-height: 1.4;
-        }
-
-        .user-name {
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: 600;
-        }
-
-        .loan-card {
-            background: var(--white);
-            border-radius: var(--border-radius);
+        .welcome-card, .loan-card {
+            background: white;
+            border-radius: 16px;
             padding: 20px;
             margin-bottom: 20px;
             box-shadow: 0 4px 20px rgba(67, 97, 238, 0.1);
-            border: 1px solid rgba(67, 97, 238, 0.1);
         }
-
         .card-title {
             text-align: center;
-            font-size: 1.2rem;
-            margin-bottom: 16px;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
             background: var(--gradient);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
             font-weight: 700;
         }
-
         .loan-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 10px;
         }
-
         .loan-option {
-            background: var(--light-gray);
-            border: 1px solid rgba(67, 97, 238, 0.2);
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
             border-radius: 12px;
-            padding: 14px 8px;
+            padding: 15px 10px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s;
         }
-
         .loan-option:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.15);
-        }
-
-        .loan-option.selected {
-            border-color: var(--primary);
-            background-color: rgba(67, 97, 238, 0.1);
+            transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(67, 97, 238, 0.2);
         }
-
+        .loan-option.selected {
+            border-color: var(--primary);
+            background: rgba(67, 97, 238, 0.1);
+        }
         .loan-amount {
-            font-size: 1rem;
+            font-size: 1.1rem;
             font-weight: 700;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 4px;
+            color: var(--primary);
+            margin-bottom: 5px;
         }
-
         .processing-fee {
-            font-size: 0.75rem;
-            color: var(--gray);
+            font-size: 0.8rem;
+            color: #6c757d;
         }
-
         .btn-apply {
             width: 100%;
             padding: 16px;
             background: var(--gradient);
-            color: var(--white);
+            color: white;
             border: none;
-            border-radius: var(--border-radius);
-            font-size: 1rem;
+            border-radius: 12px;
+            font-size: 1.1rem;
             font-weight: 600;
-            margin: 16px 0;
             cursor: pointer;
             transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.4);
         }
-
         .btn-apply:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+            box-shadow: 0 6px 20px rgba(67, 97, 238, 0.5);
         }
-
         .btn-apply:disabled {
-            opacity: 0.6;
+            opacity: 0.5;
             cursor: not-allowed;
-            transform: none !important;
         }
-
-        .error-message {
-            color: #dc3545;
-            font-size: 0.85rem;
-            text-align: center;
-            margin-top: 12px;
-            display: none;
-        }
-
         .back-link {
             display: block;
             text-align: center;
-            margin-top: 24px;
-            color: var(--gray);
+            margin-top: 20px;
+            color: #6c757d;
             text-decoration: none;
-            font-size: 0.9rem;
-            transition: color 0.3s;
-        }
-
-        .back-link:hover {
-            color: var(--primary);
-        }
-
-        @media (max-width: 360px) {
-            .loan-grid {
-                gap: 8px;
-            }
-            .loan-option {
-                padding: 12px 6px;
-            }
         }
     </style>
 </head>
-
 <body>
     <div class="container">
         <div class="welcome-card">
-            <p class="welcome-text">
-                Hi <span class="user-name" id="user-name"></span>, you qualify for these loan options based on your <strong>M-Pesa records</strong> (2-month term at 10% interest).
-            </p>
+            <p>Hi <strong id="user-name"></strong>, select your loan amount below.</p>
         </div>
 
         <div class="loan-card">
             <h3 class="card-title">Select Your Loan Amount</h3>
             <div class="loan-grid">
-                <div class="loan-option" onclick="selectLoanOption(this, 5500, 50)">
+                <div class="loan-option" onclick="selectLoan(this, 5500, 50)">
                     <div class="loan-amount">Ksh 5,500</div>
                     <div class="processing-fee">Fee: Ksh 50</div>
                 </div>
-                <div class="loan-option" onclick="selectLoanOption(this, 6800, 80)">
+                <div class="loan-option" onclick="selectLoan(this, 6800, 80)">
                     <div class="loan-amount">Ksh 6,800</div>
                     <div class="processing-fee">Fee: Ksh 80</div>
                 </div>
-                <div class="loan-option" onclick="selectLoanOption(this, 7800, 120)">
+                <div class="loan-option" onclick="selectLoan(this, 7800, 120)">
                     <div class="loan-amount">Ksh 7,800</div>
                     <div class="processing-fee">Fee: Ksh 120</div>
                 </div>
-                <div class="loan-option" onclick="selectLoanOption(this, 9800, 140)">
+                <div class="loan-option" onclick="selectLoan(this, 9800, 140)">
                     <div class="loan-amount">Ksh 9,800</div>
                     <div class="processing-fee">Fee: Ksh 140</div>
                 </div>
-                <div class="loan-option" onclick="selectLoanOption(this, 11200, 180)">
+                <div class="loan-option" onclick="selectLoan(this, 11200, 180)">
                     <div class="loan-amount">Ksh 11,200</div>
                     <div class="processing-fee">Fee: Ksh 180</div>
                 </div>
-                <div class="loan-option" onclick="selectLoanOption(this, 16800, 200)">
+                <div class="loan-option" onclick="selectLoan(this, 16800, 200)">
                     <div class="loan-amount">Ksh 16,800</div>
                     <div class="processing-fee">Fee: Ksh 200</div>
                 </div>
-                <div class="loan-option" onclick="selectLoanOption(this, 21200, 220)">
+                <div class="loan-option" onclick="selectLoan(this, 21200, 220)">
                     <div class="loan-amount">Ksh 21,200</div>
                     <div class="processing-fee">Fee: Ksh 220</div>
                 </div>
-                <div class="loan-option" onclick="selectLoanOption(this, 25600, 350)">
+                <div class="loan-option" onclick="selectLoan(this, 25600, 350)">
                     <div class="loan-amount">Ksh 25,600</div>
                     <div class="processing-fee">Fee: Ksh 350</div>
                 </div>
-                <div class="loan-option" onclick="selectLoanOption(this, 30000, 420)">
+                <div class="loan-option" onclick="selectLoan(this, 30000, 420)">
                     <div class="loan-amount">Ksh 30,000</div>
                     <div class="processing-fee">Fee: Ksh 420</div>
                 </div>
-                <div class="loan-option" onclick="selectLoanOption(this, 35400, 540)">
+                <div class="loan-option" onclick="selectLoan(this, 35400, 540)">
                     <div class="loan-amount">Ksh 35,400</div>
                     <div class="processing-fee">Fee: Ksh 540</div>
-                </div>
-                <div class="loan-option" onclick="selectLoanOption(this, 39800, 680)">
-                    <div class="loan-amount">Ksh 39,800</div>
-                    <div class="processing-fee">Fee: Ksh 680</div>
-                </div>
-                <div class="loan-option" onclick="selectLoanOption(this, 44200, 960)">
-                    <div class="loan-amount">Ksh 44,200</div>
-                    <div class="processing-fee">Fee: Ksh 960</div>
-                </div>
-                <div class="loan-option" onclick="selectLoanOption(this, 48600, 1550)">
-                    <div class="loan-amount">Ksh 48,600</div>
-                    <div class="processing-fee">Fee: Ksh 1,550</div>
-                </div>
-                <div class="loan-option" onclick="selectLoanOption(this, 60600, 2000)">
-                    <div class="loan-amount">Ksh 60,600</div>
-                    <div class="processing-fee">Fee: Ksh 2,000</div>
                 </div>
             </div>
         </div>
 
-        <button id="apply-btn" class="btn-apply" disabled>
-            Get Loan Now <i class="fas fa-arrow-right"></i>
+        <button id="btn-apply" class="btn-apply" disabled onclick="applyLoan()">
+            <i class="fas fa-rocket"></i> Get Loan Now
         </button>
-        <div id="error-message" class="error-message">Please select a loan amount to continue</div>
 
         <a href="index.html" class="back-link">
-            <i class="fas fa-arrow-left"></i> Back to Home
+            <i class="fas fa-arrow-left"></i> Back
         </a>
     </div>
 
-    <!-- SweetAlert JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.all.min.js"></script>
     
     <script>
-        // Configuration
-        const TILL_NUMBER = "6253624";
-        const API_ENDPOINT = '/api/stk-push';
-
-        // Load user data
         const userData = JSON.parse(sessionStorage.getItem('myLoan') || '{}');
         if (!userData.phone_number) {
             window.location.href = 'index.html';
@@ -292,184 +182,100 @@
 
         let selectedLoan = null;
 
-        function selectLoanOption(element, amount, fee) {
+        function selectLoan(element, amount, fee) {
             document.querySelectorAll('.loan-option').forEach(opt => {
                 opt.classList.remove('selected');
             });
             
             element.classList.add('selected');
             selectedLoan = { amount, fee };
-            
-            document.getElementById('apply-btn').disabled = false;
-            document.getElementById('error-message').style.display = 'none';
-            
-            userData.loan_amount = amount;
-            userData.processing_fee = fee;
-            sessionStorage.setItem('myLoan', JSON.stringify(userData));
+            document.getElementById('btn-apply').disabled = false;
         }
 
-        document.getElementById('apply-btn').addEventListener('click', async function() {
+        async function applyLoan() {
             if (!selectedLoan) {
-                document.getElementById('error-message').style.display = 'block';
+                Swal.fire('Error', 'Please select a loan amount', 'error');
                 return;
             }
 
-            // Show confirmation
-            const { value: confirmed } = await Swal.fire({
-                title: 'Confirm Loan Application',
+            const { value: confirm } = await Swal.fire({
+                title: 'Confirm Loan',
                 html: `
-                    <div style="text-align:left; padding:20px;">
-                        <div style="background:#f8f9ff; padding:15px; border-radius:10px; margin-bottom:15px;">
-                            <p style="margin:8px 0;"><strong>Loan Amount:</strong> Ksh ${selectedLoan.amount.toLocaleString()}</p>
-                            <p style="margin:8px 0;"><strong>Processing Fee:</strong> Ksh ${selectedLoan.fee}</p>
-                            <p style="margin:8px 0;"><strong>Your Phone:</strong> ${userData.phone_number}</p>
-                            <p style="margin:8px 0;"><strong>Till Number:</strong> ${TILL_NUMBER}</p>
-                        </div>
-                        <div style="background:#fff3cd; padding:12px; border-radius:8px; border-left:4px solid #ffc107;">
-                            <p style="font-size:0.9rem; color:#856404; margin:0;">
-                                <i class="fas fa-mobile-alt"></i> You will receive an M-Pesa payment prompt on your phone
-                            </p>
-                        </div>
-                    </div>
+                    <p><strong>Loan:</strong> Ksh ${selectedLoan.amount.toLocaleString()}</p>
+                    <p><strong>Fee:</strong> Ksh ${selectedLoan.fee}</p>
+                    <p><strong>Phone:</strong> ${userData.phone_number}</p>
+                    <hr>
+                    <p style="font-size:0.9rem;">You'll receive M-Pesa prompt</p>
                 `,
                 icon: 'question',
                 showCancelButton: true,
-                confirmButtonText: 'Send M-Pesa Prompt',
-                cancelButtonText: 'Cancel',
-                confirmButtonColor: '#4361ee',
-                cancelButtonColor: '#6c757d'
+                confirmButtonText: 'Send Prompt',
+                confirmButtonColor: '#4361ee'
             });
 
-            if (!confirmed) return;
+            if (!confirm) return;
 
-            // Show loading
             Swal.fire({
-                title: 'Initiating Payment...',
-                html: 'Connecting to M-Pesa...',
+                title: 'Sending...',
+                html: 'Please wait',
                 allowOutsideClick: false,
                 didOpen: () => Swal.showLoading()
             });
 
             try {
-                console.log('=== SENDING REQUEST ===');
-                console.log('Endpoint:', API_ENDPOINT);
-                console.log('Phone:', userData.phone_number);
-                console.log('Amount:', selectedLoan.fee);
+                console.log('Calling API with:', {
+                    phone: userData.phone_number,
+                    amount: selectedLoan.fee
+                });
 
-                // Call backend API
-                const response = await fetch(API_ENDPOINT, {
+                const response = await fetch('/api/stk-push', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         phone: userData.phone_number,
                         amount: selectedLoan.fee
                     })
                 });
 
-                console.log('=== RESPONSE ===');
-                console.log('Status:', response.status);
-                
                 const result = await response.json();
-                console.log('Result:', result);
+                console.log('API Response:', result);
 
                 if (result.success) {
-                    // STK Push sent successfully
                     await Swal.fire({
                         title: 'Check Your Phone!',
                         html: `
-                            <div style="text-align:center; padding:25px;">
-                                <i class="fas fa-mobile-alt" style="font-size:72px; color:#4361ee; margin-bottom:20px;"></i>
-                                <h3 style="color:#4361ee; margin-bottom:15px;">M-Pesa Prompt Sent!</h3>
-                                <div style="background:#f8f9ff; padding:20px; border-radius:12px; margin:20px 0;">
-                                    <p style="margin:10px 0;"><strong>Amount:</strong> Ksh ${selectedLoan.fee}</p>
-                                    <p style="margin:10px 0;"><strong>Phone:</strong> ${result.phone}</p>
-                                    <p style="margin:10px 0;"><strong>Till:</strong> ${TILL_NUMBER}</p>
-                                </div>
-                                <div style="background:#d1ecf1; padding:15px; border-radius:8px; text-align:left;">
-                                    <p style="font-size:0.9rem; color:#0c5460; margin-bottom:10px;"><strong>Next Steps:</strong></p>
-                                    <ol style="margin:0; padding-left:20px; color:#0c5460; line-height:1.8;">
-                                        <li>Check your phone for M-Pesa notification</li>
-                                        <li>Enter your M-Pesa PIN</li>
-                                        <li>Confirm payment</li>
-                                    </ol>
-                                </div>
+                            <div style="text-align:center;">
+                                <i class="fas fa-mobile-alt" style="font-size:60px; color:#4361ee; margin:20px 0;"></i>
+                                <h3>M-Pesa Prompt Sent</h3>
+                                <p style="margin:15px 0;">Amount: <strong>Ksh ${selectedLoan.fee}</strong></p>
+                                <p style="font-size:0.9rem; color:#666;">Enter your M-Pesa PIN to complete payment</p>
                             </div>
                         `,
                         icon: 'success',
-                        confirmButtonText: 'I Have Completed Payment',
-                        confirmButtonColor: '#4361ee',
-                        allowOutsideClick: false
+                        confirmButtonText: 'Done',
+                        confirmButtonColor: '#4361ee'
                     });
 
-                    // Save and redirect
                     sessionStorage.setItem('loanApproved', JSON.stringify({
                         ...userData,
                         ...selectedLoan,
-                        tillNumber: TILL_NUMBER,
-                        reference: result.reference,
                         approvedAt: new Date().toISOString()
                     }));
 
                     window.location.href = 'dash.html';
-
                 } else {
-                    // Failed - show manual payment option
-                    throw new Error(result.error || 'Failed to send STK Push');
+                    throw new Error(result.error || 'Failed to send prompt');
                 }
-
             } catch (error) {
-                console.error('=== ERROR ===');
-                console.error(error);
-
-                // Show manual payment option
-                const { value: manualPay } = await Swal.fire({
-                    title: 'STK Push Failed',
-                    html: `
-                        <div style="padding:20px;">
-                            <p style="margin-bottom:15px;">Unable to send automatic prompt. You can pay manually:</p>
-                            <div style="background:#f8f9fa; padding:20px; border-radius:10px; margin:20px 0;">
-                                <p style="font-size:0.9rem; margin:5px 0;"><strong>Till Number:</strong></p>
-                                <h2 style="color:#4361ee; font-size:2rem; margin:10px 0;">${TILL_NUMBER}</h2>
-                                <p style="font-size:0.9rem; margin:5px 0;"><strong>Amount:</strong> Ksh ${selectedLoan.fee}</p>
-                            </div>
-                            <div style="background:#fff3cd; padding:12px; border-radius:8px; text-align:left; margin-top:15px;">
-                                <p style="font-size:0.85rem; color:#856404;">
-                                    <strong>How to pay:</strong><br>
-                                    1. Go to M-Pesa → Lipa na M-Pesa<br>
-                                    2. Select Buy Goods and Services<br>
-                                    3. Enter Till: <strong>${TILL_NUMBER}</strong><br>
-                                    4. Enter Amount: <strong>Ksh ${selectedLoan.fee}</strong><br>
-                                    5. Enter your PIN
-                                </p>
-                            </div>
-                            <p style="font-size:0.8rem; color:#666; margin-top:15px;">
-                                Error: ${error.message}
-                            </p>
-                        </div>
-                    `,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'I Have Paid Manually',
-                    cancelButtonText: 'Try Again',
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error',
+                    text: error.message || 'Failed to process payment',
+                    icon: 'error',
                     confirmButtonColor: '#4361ee'
                 });
-
-                if (manualPay) {
-                    // User confirmed manual payment
-                    sessionStorage.setItem('loanApproved', JSON.stringify({
-                        ...userData,
-                        ...selectedLoan,
-                        tillNumber: TILL_NUMBER,
-                        paymentMethod: 'manual',
-                        approvedAt: new Date().toISOString()
-                    }));
-
-                    window.location.href = 'dash.html';
-                }
             }
-        });
+        }
     </script>
 </body>
 </html>
