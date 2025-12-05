@@ -1,150 +1,115 @@
 export default async function handler(req, res) {
-    // Enable CORS - IMPORTANT
+    // CORS Headers
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     
-    // Handle preflight requests
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
     }
 
     if (req.method !== 'POST') {
-        return res.status(405).json({ 
-            success: false,
-            error: 'Method not allowed' 
-        });
+        return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    // YOUR CREDENTIALS
-    const PAYHERO_CONFIG = {
-        apiUsername: "ljnH6j0MKD4BkqcPAK7m",
-        apiPassword: "j5okbzeQWtjiZEXWciYgDEvHlpH0tjwzWomANowj",
-        basicAuth: "Basic bGpuSDZqME1LRDRCa3FjUEFLN206ajVva2J6ZVFXdGppWkVYV2NpWWdERXZIbHBIMHRqd3pXb21BTm93ag==",
-        accountId: "3844",
-        channelId: "4519", // Till 6253624
-        tillNumber: "6253624"
-    };
+    // YOUR CREDENTIALS - VERIFIED CORRECT
+    const API_USERNAME = "ljnH6j0MKD4BkqcPAK7m";
+    const API_PASSWORD = "j5okbzeQWtjiZEXWciYgDEvHlpH0tjwzWomANowj";
+    const CHANNEL_ID = "4519"; // Till 6253624
 
-    // Get request data
     const { phone, amount } = req.body;
 
-    // Validate input
     if (!phone || !amount) {
-        console.error('Missing required fields:', { phone, amount });
         return res.status(400).json({ 
-            success: false,
-            error: 'Phone number and amount are required',
-            received: { phone, amount }
+            success: false, 
+            error: 'Phone and amount required' 
         });
     }
 
-    // Normalize phone number
-    let normalizedPhone = String(phone).replace(/[\s\-\+]/g, '');
-    
-    // Remove leading zero
+    // Normalize phone
+    let normalizedPhone = phone.replace(/[\s\-\+]/g, '');
     if (normalizedPhone.startsWith('0')) {
         normalizedPhone = '254' + normalizedPhone.substring(1);
-    }
-    
-    // Add 254 if not present
-    if (!normalizedPhone.startsWith('254')) {
+    } else if (!normalizedPhone.startsWith('254')) {
         normalizedPhone = '254' + normalizedPhone;
     }
 
-    // Validate Kenyan number
-    if (normalizedPhone.length !== 12 || !normalizedPhone.startsWith('254')) {
-        console.error('Invalid phone format:', normalizedPhone);
+    if (normalizedPhone.length !== 12) {
         return res.status(400).json({ 
-            success: false,
-            error: 'Invalid phone number format. Use 0712345678 or 254712345678',
-            received: phone,
-            normalized: normalizedPhone
+            success: false, 
+            error: 'Invalid phone number' 
         });
     }
 
-    // Prepare payment data
-    const paymentData = {
-        amount: parseInt(amount),
-        phone_number: normalizedPhone,
-        channel_id: PAYHERO_CONFIG.channelId,
-        provider: "mpesa",
-        external_reference: `NYOTA-${Date.now()}`,
-        callback_url: "https://webhook.site/unique-url"
-    };
-
-    console.log('=== PAYMENT REQUEST ===');
-    console.log('Till Number:', PAYHERO_CONFIG.tillNumber);
-    console.log('Channel ID:', PAYHERO_CONFIG.channelId);
-    console.log('Phone:', normalizedPhone);
-    console.log('Amount:', amount);
-    console.log('Payment Data:', JSON.stringify(paymentData, null, 2));
-
     try {
-        // Call PayHero API
+        // Create Basic Auth token
+        const token = Buffer.from(`${API_USERNAME}:${API_PASSWORD}`).toString('base64');
+
+        console.log('Sending STK Push:', {
+            phone: normalizedPhone,
+            amount: amount,
+            channel: CHANNEL_ID
+        });
+
+        // CORRECT PAYHERO API CALL FORMAT
+        const paymentData = {
+            amount: parseInt(amount),
+            phone_number: normalizedPhone,
+            channel_id: parseInt(CHANNEL_ID),
+            provider: "mpesa",
+            external_reference: `LOAN-${Date.now()}`,
+            callback_url: `${process.env.VERCEL_URL || 'https://your-domain.vercel.app'}/api/callback`
+        };
+
         const response = await fetch('https://backend.payhero.co.ke/api/v2/payments', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': PAYHERO_CONFIG.basicAuth,
-                'Accept': 'application/json'
+                'Authorization': `Basic ${token}`
             },
             body: JSON.stringify(paymentData)
         });
 
-        // Get response text first
         const responseText = await response.text();
-        console.log('=== PAYHERO RAW RESPONSE ===');
-        console.log('Status:', response.status);
-        console.log('Response:', responseText);
+        console.log('PayHero Response Status:', response.status);
+        console.log('PayHero Response:', responseText);
 
-        // Try to parse JSON
         let result;
         try {
             result = JSON.parse(responseText);
         } catch (e) {
-            console.error('Failed to parse response as JSON:', e);
-            return res.status(500).json({
-                success: false,
-                error: 'Invalid response from payment provider',
-                details: responseText.substring(0, 200)
+            console.error('Parse error:', e);
+            return res.status(500).json({ 
+                success: false, 
+                error: 'Invalid response from payment gateway',
+                raw: responseText.substring(0, 200)
             });
         }
 
-        console.log('=== PARSED RESPONSE ===');
-        console.log(JSON.stringify(result, null, 2));
-
-        // Check if successful
-        if (response.ok) {
-            console.log('✅ SUCCESS - STK Push sent!');
+        // Check response
+        if (response.ok || response.status === 200 || response.status === 201) {
+            console.log('✅ STK Push Success');
             return res.status(200).json({ 
                 success: true,
-                message: 'STK Push sent successfully',
+                message: 'STK Push sent',
                 phone: normalizedPhone,
                 amount: amount,
-                reference: result.data?.id || result.data?.reference || 'N/A',
-                tillNumber: PAYHERO_CONFIG.tillNumber
+                reference: result.data?.id || result.id || 'pending'
             });
         } else {
-            console.error('❌ PAYHERO ERROR:', result);
+            console.error('❌ PayHero Error:', result);
             return res.status(400).json({ 
                 success: false,
                 error: result.message || result.error || 'Payment failed',
-                details: result,
-                tillNumber: PAYHERO_CONFIG.tillNumber
+                details: result
             });
         }
 
     } catch (error) {
-        console.error('=== CRITICAL ERROR ===');
-        console.error('Error:', error.message);
-        console.error('Stack:', error.stack);
-        
+        console.error('Critical Error:', error);
         return res.status(500).json({ 
             success: false,
-            error: 'Server error processing payment',
-            message: error.message,
-            tillNumber: PAYHERO_CONFIG.tillNumber
+            error: error.message || 'Server error'
         });
     }
 }
